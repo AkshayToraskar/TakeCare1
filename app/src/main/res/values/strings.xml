@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">TakeCare</string>
+    <string name="title_activity_image_edit">Edit</string>
+
+    <string name="camera_not_supported">Your Device doesn\'t Support Camera.</string>
+    <string name="capture_image_failed">Failed to capture image.</string>
+
+    <string name="activity_title_main">Filters</string>
+    <string name="action_settings">Settings</string>
+    <string name="filters">FILTERS</string>
+    <string name="edit">EDIT</string>
+
+    <string name="lbl_brightness">BRIGHTNESS</string>
+    <string name="lbl_contrast">CONTRAST</string>
+    <string name="lbl_saturation">SATURATION</string>
+    <string name="tab_filters">FILTERS</string>
+    <string name="tab_edit">EDIT</string>
+    <string name="lbl_aging">AGE</string>
+
+
+    <string name="roboto_medium">sans-serif-medium</string>
+    <string name="filter_normal">Normal</string>
+    <string name="action_save">SAVE</string>
+    <string name="action_open">OPEN</string>
+</resources>

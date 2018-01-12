@@ -40,8 +40,9 @@ public class EditImageFragment extends Fragment implements SeekBar.OnSeekBarChan
 
         ButterKnife.bind(this, view);
 
+        seekBarAging.setProgress(42);
         seekBarAging.setOnSeekBarChangeListener(this);
-               return view;
+        return view;
     }
 
     @Override

@@ -58,7 +58,7 @@ import io.realm.Realm;
 import com.tzutalin.dlib.FaceDet;
 import com.tzutalin.dlib.VisionDetRet;*/
 
-public class ImageEditActivity extends AppCompatActivity implements  EditImageFragment.EditImageFragmentListener {
+public class ImageEditActivity extends AppCompatActivity implements EditImageFragment.EditImageFragmentListener {
 
     public static String TAG = ImageEditActivity.class.getSimpleName();
     @BindView(R.id.toolbar)
@@ -91,9 +91,15 @@ public class ImageEditActivity extends AppCompatActivity implements  EditImageFr
     String imagePath;
     Bitmap editedBitmap;
     public long imgid;
-  //  public static final String IMAGE_NAME = "dog.jpg";
+    //  public static final String IMAGE_NAME = "dog.jpg";
 
     SparseArray<Face> faces;
+    Bitmap bitmapWrinkles;
+    Bitmap bitmapTeeth;
+    Paint alphaPaint;
+    Canvas canvas;
+    Paint paint;
+    Bitmap bmpEditedface;
 
 
     @Override
@@ -140,7 +146,6 @@ public class ImageEditActivity extends AppCompatActivity implements  EditImageFr
         }
 
 
-
     }
 
 
@@ -149,14 +154,15 @@ public class ImageEditActivity extends AppCompatActivity implements  EditImageFr
 
         // adding filter list fragment
         filtersListFragment = new FiltersListFragment();
-      //  filtersListFragment.setListener(this);
+        //  filtersListFragment.setListener(this);
 
         // adding edit image fragment
         editImageFragment = new EditImageFragment();
         editImageFragment.setListener(this);
 
-        adapter.addFragment(filtersListFragment, getString(R.string.tab_filters));
-        adapter.addFragment(editImageFragment, getString(R.string.tab_edit));
+        adapter.addFragment(editImageFragment, getString(R.string.lbl_aging));
+        //adapter.addFragment(filtersListFragment, getString(R.string.tab_filters));
+
 
         viewPager.setAdapter(adapter);
     }
@@ -176,7 +182,10 @@ public class ImageEditActivity extends AppCompatActivity implements  EditImageFr
     }*/
 
     @Override
-    public void onAgeChanged(int age){
+    public void onAgeChanged(int age) {
+        resetFaceValues(age);
+
+        Log.v("age", " " + age);
 
     }
 
@@ -189,7 +198,7 @@ public class ImageEditActivity extends AppCompatActivity implements  EditImageFr
     public void onEditCompleted() {
         // once the editing is done i.e seekbar is drag is completed,
         // apply the values on to filtered image
-     //   final Bitmap bitmap = filteredImage.copy(Bitmap.Config.ARGB_8888, true);
+        //   final Bitmap bitmap = filteredImage.copy(Bitmap.Config.ARGB_8888, true);
 
     }
 
@@ -233,8 +242,6 @@ public class ImageEditActivity extends AppCompatActivity implements  EditImageFr
             editImageFragment.resetControls();
         }
     }*/
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_edit, menu);
@@ -258,105 +265,141 @@ public class ImageEditActivity extends AppCompatActivity implements  EditImageFr
         return super.onOptionsItemSelected(item);
     }
 
-    Bitmap bitmapWrinkles;
-    Bitmap bitmapTeeth;
-    Paint alphaPaint;
-    Canvas canvas;
-    Paint paint;
+
+    public void resetFaceValues(int ageData) {
+        editedBitmap.recycle();
+        bitmapTeeth.recycle();
+
+
+        initFaceValued(ageData);
+        setFaceData(ageData);
+    }
+
+    public static int range(int num) {
+        if (0 <= num && num < 20)
+            return 1;
+        if (20 < num && num < 40)
+            return 2;
+        if (40 <= num && num < 60)
+            return 3;
+        if (60 <= num && num < 75)
+            return 4;
+        if (75 <= num && num < 90)
+            return 5;
+
+        return 6;
+
+    }
 
     private void scanFaces() throws Exception {
 
-        //Bitmap bitmap = CameraUtil.convertImagePathToBitmap(imagePath, false);
         if (detector.isOperational() && originalImage != null) {
 
-
-            //originalImage = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-            //filteredImage = originalImage.copy(Bitmap.Config.ARGB_8888, true);
-            finalImage = originalImage.copy(Bitmap.Config.ARGB_8888, true);
-            //imagePreview.setImageBitmap(originalImage);
-            // render selected image thumbnails
-            // filtersListFragment.prepareThumbnail(originalImage);
-
-            editedBitmap = Bitmap.createBitmap(originalImage.getWidth(), originalImage
-                    .getHeight(), originalImage.getConfig());
-            float scale = getResources().getDisplayMetrics().density;
-
-            paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            paint.setColor(Color.rgb(255, 61, 61));
-            paint.setTextSize((int) (14 * scale));
-            paint.setShadowLayer(1f, 0f, 1f, Color.WHITE);
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(3f);
-            canvas = new Canvas(editedBitmap);
-            canvas.drawBitmap(originalImage, 0, 0, paint);
+            initFaceValued(42);
             Frame frame = new Frame.Builder().setBitmap(editedBitmap).build();
-
-
-            bitmapWrinkles = BitmapFactory.decodeResource(getResources(), R.drawable.wrinkles2);
-            alphaPaint = new Paint();
-            alphaPaint.setAlpha(42);
-
-            bitmapTeeth = BitmapFactory.decodeResource(getResources(), R.drawable.teeth2);
-            Paint teethPaint = new Paint();
-
-
             faces = detector.detect(frame);
-
-            setFaceData();
-
+            setFaceData(42);
         } else {
             // scanResults.setText("Could not set up the detector!");
         }
     }
 
 
+    public void initFaceValued(int ageData) {
+        finalImage = originalImage.copy(Bitmap.Config.ARGB_8888, true);
+        editedBitmap = Bitmap.createBitmap(originalImage.getWidth(), originalImage
+                .getHeight(), originalImage.getConfig());
+        float scale = getResources().getDisplayMetrics().density;
 
 
-    public void setFaceData(){
+        switch (range(ageData)) {
+            case 1:
+                bitmapTeeth = BitmapFactory.decodeResource(getResources(), R.drawable.teeth_t1);
+                break;
+
+            case 2:
+                bitmapTeeth = BitmapFactory.decodeResource(getResources(), R.drawable.teeth_t2);
+                break;
+
+            case 3:
+                bitmapTeeth = BitmapFactory.decodeResource(getResources(), R.drawable.teeth_t3);
+                break;
+
+            case 4:
+                bitmapTeeth = BitmapFactory.decodeResource(getResources(), R.drawable.teeth_t4);
+                break;
+
+            case 5:
+                bitmapTeeth = BitmapFactory.decodeResource(getResources(), R.drawable.teeth_t5);
+                break;
+
+            case 6:
+                bitmapTeeth = BitmapFactory.decodeResource(getResources(), R.drawable.teeth_t6);
+                break;
+        }
+
+
+        bitmapWrinkles = BitmapFactory.decodeResource(getResources(), R.drawable.wrinkles2);
+
+        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setColor(Color.rgb(255, 61, 61));
+        paint.setTextSize((int) (14 * scale));
+        paint.setShadowLayer(1f, 0f, 1f, Color.WHITE);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(3f);
+
+
+        canvas = new Canvas(editedBitmap);
+        canvas.drawBitmap(originalImage, 0, 0, paint);
+    }
+
+
+    public void setFaceData(int ageVal) {
+
+
+        alphaPaint = new Paint();
+        alphaPaint.setAlpha((ageVal/2)+10);
+
+
         for (int index = 0; index < faces.size(); ++index) {
             Face face = faces.valueAt(index);
 
             float facewidth = face.getPosition().x + face.getWidth();
             float faceheight = face.getPosition().y + face.getHeight();
 
-            canvas.drawRect(
+           /* canvas.drawRect(
                     face.getPosition().x,
                     face.getPosition().y,
                     facewidth,
-                    faceheight, paint);
+                    faceheight, paint);*/
 
 
-
-            Bitmap bmpEditedface = Bitmap.createScaledBitmap(bitmapWrinkles, (int) face.getWidth(), (int) face.getHeight(), true);
-
-            canvas.drawBitmap(bmpEditedface, face.getPosition().x, face.getPosition().y, alphaPaint);
+            bmpEditedface = Bitmap.createScaledBitmap(bitmapWrinkles, (int) face.getWidth(), (int) face.getHeight(), true);
+            canvas.drawBitmap(bmpEditedface, face.getPosition().x, face.getPosition().y + 20, alphaPaint);
 
 
-            PointF pointRightMouth=null, pointLeftMouth=null, pointBottomMouth=null;
-
+            PointF pointRightMouth = null, pointLeftMouth = null, pointBottomMouth = null;
 
 
             for (Landmark landmark : face.getLandmarks()) {
                 int cx = (int) (landmark.getPosition().x);
                 int cy = (int) (landmark.getPosition().y);
-                canvas.drawCircle(cx, cy, 5, paint);
+               // canvas.drawCircle(cx, cy, 5, paint);
 
                 if (landmark.getType() == Landmark.RIGHT_MOUTH) {
-                    pointRightMouth=landmark.getPosition();
+                    pointRightMouth = landmark.getPosition();
                     //canvas.drawBitmap(bitmapTeeth, landmark.getPosition().x, landmark.getPosition().y-10, paint);
-                }
-                else if(landmark.getType()==Landmark.LEFT_MOUTH){
-                    pointLeftMouth=landmark.getPosition();
-                }
-                else if(landmark.getType()==Landmark.BOTTOM_MOUTH){
-                    pointBottomMouth=landmark.getPosition();
+                } else if (landmark.getType() == Landmark.LEFT_MOUTH) {
+                    pointLeftMouth = landmark.getPosition();
+                } else if (landmark.getType() == Landmark.BOTTOM_MOUTH) {
+                    pointBottomMouth = landmark.getPosition();
                 }
 
             }
 
 
-            Bitmap bmpTeeth=Bitmap.createScaledBitmap(bitmapTeeth,(int)pointLeftMouth.x-(int)pointRightMouth.x,((int)pointLeftMouth.y-(int)pointBottomMouth.y)+20,true);
-            canvas.drawBitmap(bmpTeeth,(int)pointRightMouth.x,(int)pointRightMouth.y-(int)(bmpTeeth.getHeight()/2),paint);
+            Bitmap bmpTeeth = Bitmap.createScaledBitmap(bitmapTeeth, (int) pointLeftMouth.x - (int) pointRightMouth.x, ((int) pointBottomMouth.y - (int) pointLeftMouth.y) + 30, true);
+            canvas.drawBitmap(bmpTeeth, (int) pointRightMouth.x, (int) pointRightMouth.y - (int) (bmpTeeth.getHeight() / 3), paint);
 
         }
 
@@ -367,10 +410,6 @@ public class ImageEditActivity extends AppCompatActivity implements  EditImageFr
 
         }
     }
-
-
-
-
 
 
     /*
@@ -440,7 +479,6 @@ public class ImageEditActivity extends AppCompatActivity implements  EditImageFr
                 }).check();
 
     }
-
 
 
 }

@@ -55,10 +55,10 @@
         android:paddingBottom="@dimen/padding_10"
         android:paddingTop="@dimen/padding_10">
 
-        <TextView
+       <!-- <TextView
             android:layout_width="@dimen/lbl_edit_image_control"
             android:layout_height="wrap_content"
-            android:text="@string/lbl_aging" />
+            android:text="@string/lbl_aging" />-->
 
         <SeekBar
             android:id="@+id/seekbar_aging"

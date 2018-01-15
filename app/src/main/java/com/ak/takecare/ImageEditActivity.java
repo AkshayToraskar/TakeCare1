@@ -5,10 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Shader;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -183,7 +187,7 @@ public class ImageEditActivity extends AppCompatActivity implements EditImageFra
 
     @Override
     public void onAgeChanged(int age) {
-        resetFaceValues(age);
+        resetFaceValues(Math.abs(age));
 
         Log.v("age", " " + age);
 
@@ -276,18 +280,23 @@ public class ImageEditActivity extends AppCompatActivity implements EditImageFra
     }
 
     public static int range(int num) {
-        if (0 <= num && num < 20)
+        if (0 <= num && num < 15)
             return 1;
-        if (20 < num && num < 40)
+        if (15 <= num && num < 30)
             return 2;
-        if (40 <= num && num < 60)
+        if (30 <= num && num < 45)
             return 3;
-        if (60 <= num && num < 75)
+        if (45 <= num && num < 60)
             return 4;
-        if (75 <= num && num < 90)
+        if (60 <= num && num < 70)
             return 5;
+        if (70 <= num && num < 80)
+            return 6;
+        if (80 <= num && num < 90)
+            return 7;
 
-        return 6;
+
+        return 8;
 
     }
 
@@ -336,6 +345,14 @@ public class ImageEditActivity extends AppCompatActivity implements EditImageFra
             case 6:
                 bitmapTeeth = BitmapFactory.decodeResource(getResources(), R.drawable.teeth_t6);
                 break;
+
+            case 7:
+                bitmapTeeth = BitmapFactory.decodeResource(getResources(), R.drawable.teeth_t7);
+                break;
+
+            case 8:
+                bitmapTeeth = BitmapFactory.decodeResource(getResources(), R.drawable.teeth_t8);
+                break;
         }
 
 
@@ -358,14 +375,14 @@ public class ImageEditActivity extends AppCompatActivity implements EditImageFra
 
 
         alphaPaint = new Paint();
-        alphaPaint.setAlpha((ageVal/2)+10);
+        alphaPaint.setAlpha((ageVal / 2));
 
 
         for (int index = 0; index < faces.size(); ++index) {
             Face face = faces.valueAt(index);
 
-            float facewidth = face.getPosition().x + face.getWidth();
-            float faceheight = face.getPosition().y + face.getHeight();
+            //float facewidth = face.getPosition().x + face.getWidth();
+            //float faceheight = face.getPosition().y + face.getHeight();
 
            /* canvas.drawRect(
                     face.getPosition().x,
@@ -375,7 +392,15 @@ public class ImageEditActivity extends AppCompatActivity implements EditImageFra
 
 
             bmpEditedface = Bitmap.createScaledBitmap(bitmapWrinkles, (int) face.getWidth(), (int) face.getHeight(), true);
-            canvas.drawBitmap(bmpEditedface, face.getPosition().x, face.getPosition().y + 20, alphaPaint);
+
+
+            // alphaPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.MULTIPLY));
+            alphaPaint.setShader(new BitmapShader(bmpEditedface, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP));
+
+
+            canvas.drawBitmap(bmpEditedface, face.getPosition().x, face.getPosition().y + 30, alphaPaint);
+
+            //  canvas.drawRect(face.getPosition().x, face.getPosition().y + 20,facewidth,faceheight,alphaPaint);
 
 
             PointF pointRightMouth = null, pointLeftMouth = null, pointBottomMouth = null;
@@ -384,7 +409,7 @@ public class ImageEditActivity extends AppCompatActivity implements EditImageFra
             for (Landmark landmark : face.getLandmarks()) {
                 int cx = (int) (landmark.getPosition().x);
                 int cy = (int) (landmark.getPosition().y);
-               // canvas.drawCircle(cx, cy, 5, paint);
+                // canvas.drawCircle(cx, cy, 5, paint);
 
                 if (landmark.getType() == Landmark.RIGHT_MOUTH) {
                     pointRightMouth = landmark.getPosition();
@@ -416,12 +441,17 @@ public class ImageEditActivity extends AppCompatActivity implements EditImageFra
    * saves image to camera gallery
    * */
     private void saveImageToGallery() {
+
+
+        //finalImage = editedBitmap.copy(Bitmap.Config.ARGB_8888, true);
+
+
         Dexter.withActivity(this).withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .withListener(new MultiplePermissionsListener() {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
                         if (report.areAllPermissionsGranted()) {
-                            final String path = BitmapUtils.insertImage(getContentResolver(), finalImage, System.currentTimeMillis() + "_profile.jpg", null);
+                            final String path = BitmapUtils.insertImage(getContentResolver(), editedBitmap, System.currentTimeMillis() + "_profile.jpg", null);
                             if (!TextUtils.isEmpty(path)) {
 
 

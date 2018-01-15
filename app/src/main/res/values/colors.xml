@@ -8,4 +8,7 @@
     <color name="filter_label_normal">#8A8889</color>
     <color name="filter_label_selected">#221F20</color>
 
+    <color name="white">#FFFFFF</color>
+    <color name="yellow">#ffee04</color>
+
 </resources>

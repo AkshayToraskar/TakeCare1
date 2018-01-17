@@ -57,8 +57,8 @@ public class ImageHistoryAdapter extends RecyclerView.Adapter<ImageHistoryAdapte
                 @Override
                 public void onClick(View view) {
                     Intent i = new Intent(context, ImageEditActivity.class);
-                    i.putExtra("imgid",imageList.get(getPosition()).getId());
-                    i.putExtra("imgurl", imageList.get(getPosition()).getEditedPath());
+                    i.putExtra("imgid", imageList.get(getPosition()).getId());
+                    i.putExtra("imgurl", imageList.get(getPosition()).getPrevPath());
                     context.startActivity(i);
                 }
             });

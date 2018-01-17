@@ -13,6 +13,7 @@ import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Shader;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -29,7 +30,9 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ak.takecare.fragment.EditImageFragment;
@@ -37,6 +40,7 @@ import com.ak.takecare.fragment.FiltersListFragment;
 import com.ak.takecare.model.ImageData;
 import com.ak.takecare.util.BitmapUtils;
 import com.ak.takecare.util.CameraUtil;
+import com.github.shchurov.horizontalwheelview.HorizontalWheelView;
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
@@ -62,19 +66,30 @@ import io.realm.Realm;
 import com.tzutalin.dlib.FaceDet;
 import com.tzutalin.dlib.VisionDetRet;*/
 
-public class ImageEditActivity extends AppCompatActivity implements EditImageFragment.EditImageFragmentListener {
+public class ImageEditActivity extends AppCompatActivity {
 
     public static String TAG = ImageEditActivity.class.getSimpleName();
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     @BindView(R.id.image_preview)
     ImageView imagePreview;
-    @BindView(R.id.tabs)
+    /*@BindView(R.id.tabs)
     TabLayout tabLayout;
     @BindView(R.id.viewpager)
-    ViewPager viewPager;
+    ViewPager viewPager;*/
     @BindView(R.id.coordinator_layout)
     CoordinatorLayout coordinatorLayout;
+
+    private EditImageFragment.EditImageFragmentListener listener;
+
+    //@BindView(R.id.seekbar_aging)
+    //SeekBar seekBarAging;
+
+    @BindView(R.id.lblAge)
+    TextView tvAge;
+
+    @BindView(R.id.horizontalWheelView)
+    HorizontalWheelView horizontalWheelView;
 
     Bitmap originalImage;
     //Bitmap filteredImage;
@@ -105,16 +120,30 @@ public class ImageEditActivity extends AppCompatActivity implements EditImageFra
     Paint paint;
     Bitmap bmpEditedface;
 
+    MediaPlayer mediaPlayer;
+    public static int tickMark = 8;
+
+    ImageData imgData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_edit);
         ButterKnife.bind(this);
+
+
+        View decorView = getWindow().getDecorView();
+        // Hide the status bar.
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+
+
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         realm = Realm.getDefaultInstance();
+
+        mediaPlayer = MediaPlayer.create(this, R.raw.woosh);
 
         detector = new FaceDetector.Builder(getApplicationContext())
                 .setTrackingEnabled(false)
@@ -123,13 +152,18 @@ public class ImageEditActivity extends AppCompatActivity implements EditImageFra
                 .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
                 .build();
 
-        setupViewPager(viewPager);
-        tabLayout.setupWithViewPager(viewPager);
+        //setupViewPager(viewPager);
+        //tabLayout.setupWithViewPager(viewPager);
 
 
         if (getIntent().getExtras() != null) {
             imagePath = getIntent().getExtras().getString("imgurl");
             imgid = getIntent().getExtras().getLong("imgid", 0);
+
+            if (imgid != 0) {
+                imgData = realm.where(ImageData.class).equalTo("id", imgid).findFirst();
+            }
+
 
             if (!imagePath.equals("") && imagePath != null) {
 
@@ -149,11 +183,56 @@ public class ImageEditActivity extends AppCompatActivity implements EditImageFra
                 Toast.makeText(this, R.string.capture_image_failed, Toast.LENGTH_SHORT).show();
         }
 
+        horizontalWheelView.setEndLock(true);
+
+        horizontalWheelView.setListener(new HorizontalWheelView.Listener() {
+            @Override
+            public void onRotationChanged(double radians) {
+                Log.v("rotation radiant", " sdaf " + (int) (horizontalWheelView.getDegreesAngle() / 3.6));
+                //listener.onAgeChanged((int) (horizontalWheelView.getDegreesAngle() / 3.6));
+                int age = (int) (horizontalWheelView.getDegreesAngle() / 3.6);
+
+                if (tickMark < age + 24 || tickMark > age - 24) {
+                    try {
+                        if (mediaPlayer.isPlaying()) {
+                            mediaPlayer.stop();
+                            mediaPlayer.release();
+                            mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.woosh);
+                        }
+                        mediaPlayer.start();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    tickMark = age + 8;
+
+                }
+
+                resetFaceValues(Math.abs(age));
+                Log.v("age", " " + age);
+                updateText();
+            }
+
+        });
+
+        if (imgData != null) {
+            horizontalWheelView.setDegreesAngle((imgData.getAge() * 3.6));
+        }
+
 
     }
 
 
-    private void setupViewPager(ViewPager viewPager) {
+    private void updateText() {
+
+
+        Double d = horizontalWheelView.getDegreesAngle() / 3.6;
+
+        String text = String.valueOf(d.intValue());
+        tvAge.setText(text);
+    }
+
+
+   /* private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
 
         // adding filter list fragment
@@ -169,7 +248,7 @@ public class ImageEditActivity extends AppCompatActivity implements EditImageFra
 
 
         viewPager.setAdapter(adapter);
-    }
+    }*/
 
 
    /* @Override
@@ -185,7 +264,7 @@ public class ImageEditActivity extends AppCompatActivity implements EditImageFra
         finalImage = filteredImage.copy(Bitmap.Config.ARGB_8888, true);
     }*/
 
-    @Override
+    /*@Override
     public void onAgeChanged(int age) {
         resetFaceValues(Math.abs(age));
 
@@ -204,10 +283,10 @@ public class ImageEditActivity extends AppCompatActivity implements EditImageFra
         // apply the values on to filtered image
         //   final Bitmap bitmap = filteredImage.copy(Bitmap.Config.ARGB_8888, true);
 
-    }
+    }*/
 
 
-    class ViewPagerAdapter extends FragmentPagerAdapter {
+    /*class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
 
@@ -234,7 +313,7 @@ public class ImageEditActivity extends AppCompatActivity implements EditImageFra
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
         }
-    }
+    }*/
 
 
     /**
@@ -280,19 +359,19 @@ public class ImageEditActivity extends AppCompatActivity implements EditImageFra
     }
 
     public static int range(int num) {
-        if (0 <= num && num < 15)
+        if (0 <= num && num < 5)
             return 1;
-        if (15 <= num && num < 30)
+        if (5 <= num && num < 10)
             return 2;
-        if (30 <= num && num < 45)
+        if (10 <= num && num < 15)
             return 3;
-        if (45 <= num && num < 60)
+        if (15 <= num && num < 20)
             return 4;
-        if (60 <= num && num < 70)
+        if (20 <= num && num < 40)
             return 5;
-        if (70 <= num && num < 80)
+        if (40 <= num && num < 60)
             return 6;
-        if (80 <= num && num < 90)
+        if (60 <= num && num < 80)
             return 7;
 
 
@@ -391,6 +470,7 @@ public class ImageEditActivity extends AppCompatActivity implements EditImageFra
                     faceheight, paint);*/
 
 
+            Log.v("Smile Probability", " " + face.getIsSmilingProbability());
             bmpEditedface = Bitmap.createScaledBitmap(bitmapWrinkles, (int) face.getWidth(), (int) face.getHeight(), true);
 
 
@@ -409,6 +489,10 @@ public class ImageEditActivity extends AppCompatActivity implements EditImageFra
             for (Landmark landmark : face.getLandmarks()) {
                 int cx = (int) (landmark.getPosition().x);
                 int cy = (int) (landmark.getPosition().y);
+
+                Log.v("Landmark type", "type " + landmark.getType());
+
+
                 // canvas.drawCircle(cx, cy, 5, paint);
 
                 if (landmark.getType() == Landmark.RIGHT_MOUTH) {
@@ -470,11 +554,18 @@ public class ImageEditActivity extends AppCompatActivity implements EditImageFra
                                             imageData.setPrevPath(imagePath);
                                             imageData.setEditedPath(finalImagepath);
                                             imageData.setDateTime(String.valueOf(new Date()));
+
+                                            Double d = Double.valueOf(tvAge.getText().toString());
+                                            imageData.setAge(d.intValue());
+
                                             realm.copyToRealmOrUpdate(imageData);
                                         } else {
                                             ImageData imageData = realm.where(ImageData.class).equalTo("id", imgid).findFirst();
                                             imageData.setEditedPath(finalImagepath);
                                             imageData.setDateTime(String.valueOf(new Date()));
+
+                                            Double d = Double.valueOf(tvAge.getText().toString());
+                                            imageData.setAge(d.intValue());
                                             realm.copyToRealmOrUpdate(imageData);
                                         }
                                     }

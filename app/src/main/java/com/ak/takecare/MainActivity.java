@@ -39,6 +39,7 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.karumi.dexter.listener.single.PermissionListener;
+//import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -113,6 +114,10 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
 
 
+            int maxWidth=100;
+            int maxHeight=100;
+
+
             if (requestCode == CAPTURE_IMAGE) {
                 // Toast.makeText(this, "capture", Toast.LENGTH_SHORT).show();
                 String getImageUrl;
@@ -129,8 +134,18 @@ public class MainActivity extends AppCompatActivity {
                 Log.v(TAG,"image path1"+mPhotoPath);
 
 
-                //editImage(mPhotoPath);
+
+
+
+
+               /* UCrop.of(fileUri, fileUri)
+                        .withAspectRatio(16, 9)
+                        .withMaxResultSize(maxWidth, maxHeight)
+                        .start(this);*/
+
+
                 editImage(mPhotoPath);
+               // editImage(mPhotoPath);
 
 
             } else if (requestCode == PICK_IMAGE) {
@@ -139,10 +154,26 @@ public class MainActivity extends AppCompatActivity {
 
                 // Toast.makeText(this, "Gallery", Toast.LENGTH_SHORT).show();
                 Uri uri = data.getData();
-
-
                 editImage(getImageUrl);
-            }
+
+               /* UCrop.of(uri, fileUri)
+                        .withAspectRatio(16, 9)
+                        .withMaxResultSize(maxWidth, maxHeight)
+                        .start(this);*/
+
+
+
+            }/*else if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+                final Uri resultUri = UCrop.getOutput(data);
+                String imagePath=ImagePath_MarshMallow.getPath(MainActivity.this,resultUri);
+                editImage(imagePath);
+
+            } else if (resultCode == UCrop.RESULT_ERROR) {
+                final Throwable cropError = UCrop.getError(data);
+            }*/
+
+
+
 
         }
     }

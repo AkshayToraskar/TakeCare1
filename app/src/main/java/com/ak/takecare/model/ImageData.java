@@ -12,6 +12,7 @@ public class ImageData extends RealmObject {
     @PrimaryKey
     long id;
     String prevPath, editedPath, DateTime;
+    int age;
 
     public long getId() {
         return id;
@@ -43,5 +44,13 @@ public class ImageData extends RealmObject {
 
     public void setDateTime(String dateTime) {
         DateTime = dateTime;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
     }
 }

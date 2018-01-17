@@ -4,25 +4,77 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="@color/cardview_dark_background"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".ImageEditActivity"
     tools:showIn="@layout/activity_image_edit">
 
-    <ImageView
-        android:id="@+id/image_preview"
+
+    <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/viewpager"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:scaleType="fitXY" />
+        android:layout_above="@+id/ll_wheel"
+        android:layout_margin="25dp">
 
-    <com.ak.takecare.ui.NonSwipeableViewPager
+        <ImageView
+            android:id="@+id/image_preview"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_gravity="center"
+            android:layout_margin="20dp"
+            android:scaleType="fitXY" />
+
+
+    </android.support.v7.widget.CardView>
+
+
+
+    <LinearLayout
+        android:id="@+id/ll_wheel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="@dimen/padding_10"
+        android:paddingTop="@dimen/padding_10">
+
+        <TextView
+            android:id="@+id/lblAge"
+            android:layout_width="wrap_content"
+            android:textColor="@color/white"
+            android:layout_height="wrap_content"
+            android:text="@string/lbl_aging" />
+
+        <!--<SeekBar
+            android:id="@+id/seekbar_aging"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />-->
+
+
+        <com.github.shchurov.horizontalwheelview.HorizontalWheelView
+            android:id="@+id/horizontalWheelView"
+            android:layout_width="wrap_content"
+            android:layout_height="64dp"
+            android:layout_margin="16dp"
+            app:onlyPositiveValues="true"
+            app:marksCount="20"
+            app:activeColor="@color/yellow"
+            app:normalColor="@color/white" />
+
+
+    </LinearLayout>
+
+
+
+    <!--<com.ak.takecare.ui.NonSwipeableViewPager
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
+        android:layout_height="100dp"
         android:layout_above="@+id/tabs"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -34,6 +86,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         app:tabGravity="fill"
-        app:tabMode="fixed" />
+        app:tabMode="fixed" />-->
 
 </RelativeLayout>

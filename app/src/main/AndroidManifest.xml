@@ -37,6 +37,13 @@
             android:name=".ImageEditActivity"
             android:label="@string/title_activity_image_edit"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+
+
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+
     </application>
 
 </manifest>

@@ -132,12 +132,6 @@ public class ImageEditActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
 
-        View decorView = getWindow().getDecorView();
-        // Hide the status bar.
-        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-        decorView.setSystemUiVisibility(uiOptions);
-
-
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -315,6 +309,16 @@ public class ImageEditActivity extends AppCompatActivity {
         }
     }*/
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        View decorView = getWindow().getDecorView();
+        // Hide the status bar.
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+    }
 
     /**
      * Resets image edit controls to normal when new filter
@@ -599,6 +603,23 @@ public class ImageEditActivity extends AppCompatActivity {
                     }
                 }).check();
 
+    }
+
+
+    public void onBtnClick(View view) {
+        int id = view.getId();
+
+        switch (id) {
+            case R.id.btn_edit_landmark:
+                Intent i = new Intent(this, EditLandmarkActivity.class);
+                i.putExtra("imgPath",imagePath);
+                startActivity(i);
+                break;
+
+            case R.id.btn_effect:
+
+                break;
+        }
     }
 
 

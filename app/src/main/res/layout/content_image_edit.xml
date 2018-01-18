@@ -11,64 +11,100 @@
     tools:showIn="@layout/activity_image_edit">
 
 
-    <android.support.v7.widget.CardView
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/ll_wheel"
-        android:layout_margin="25dp">
-
-        <ImageView
-            android:id="@+id/image_preview"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_gravity="center"
-            android:layout_margin="20dp"
-            android:scaleType="fitXY" />
+        android:layout_above="@id/ll_wheel">
 
 
-    </android.support.v7.widget.CardView>
+        <android.support.v7.widget.CardView
+            android:layout_width="500dp"
+            android:layout_height="500dp"
+            android:layout_centerInParent="true"
+            android:layout_margin="25dp">
 
+            <ImageView
+                android:id="@+id/image_preview"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_gravity="center"
+                android:layout_margin="20dp"
+                android:scaleType="fitXY" />
+
+
+        </android.support.v7.widget.CardView>
+
+
+    </RelativeLayout>
 
 
     <LinearLayout
         android:id="@+id/ll_wheel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
         android:layout_alignParentBottom="true"
-        android:paddingBottom="@dimen/padding_10"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:weightSum="10"
+        android:layout_margin="10dp"
         android:paddingTop="@dimen/padding_10">
 
-        <TextView
-            android:id="@+id/lblAge"
+
+        <ImageView
+            android:id="@+id/btn_edit_landmark"
             android:layout_width="wrap_content"
-            android:textColor="@color/white"
-            android:layout_height="wrap_content"
-            android:text="@string/lbl_aging" />
-
-        <!--<SeekBar
-            android:id="@+id/seekbar_aging"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />-->
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:onClick="onBtnClick"
+            android:src="@drawable/ic_sentiment_satisfied_white_36dp" />
 
 
-        <com.github.shchurov.horizontalwheelview.HorizontalWheelView
-            android:id="@+id/horizontalWheelView"
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="64dp"
-            android:layout_margin="16dp"
-            app:onlyPositiveValues="true"
-            app:marksCount="20"
-            app:activeColor="@color/yellow"
-            app:normalColor="@color/white" />
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_weight="6"
+            android:layout_margin="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/lblAge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/lbl_aging"
+                android:textColor="@color/white" />
+
+            <!--<SeekBar
+                android:id="@+id/seekbar_aging"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />-->
+
+
+            <com.github.shchurov.horizontalwheelview.HorizontalWheelView
+                android:id="@+id/horizontalWheelView"
+                android:layout_width="wrap_content"
+                android:layout_height="64dp"
+                app:activeColor="@color/yellow"
+                app:marksCount="20"
+                app:normalColor="@color/white"
+                app:onlyPositiveValues="true" />
+
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/btn_effect"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            android:onClick="onBtnClick"
+            android:src="@drawable/ic_graphic_eq_white_36dp" />
 
 
     </LinearLayout>
-
 
 
     <!--<com.ak.takecare.ui.NonSwipeableViewPager

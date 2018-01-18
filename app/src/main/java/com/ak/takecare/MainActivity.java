@@ -39,7 +39,7 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.karumi.dexter.listener.single.PermissionListener;
-//import com.yalantis.ucrop.UCrop;
+import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -72,6 +72,9 @@ public class MainActivity extends AppCompatActivity {
 
     public static String mPhotoPath;
     Uri fileUri;
+
+    Uri sourceUri, destUri;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,72 +112,81 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        bottomSheetDialog.dismiss();
+        try {
 
-        if (resultCode == RESULT_OK) {
-
-
-            int maxWidth=100;
-            int maxHeight=100;
-
-
-            if (requestCode == CAPTURE_IMAGE) {
-                // Toast.makeText(this, "capture", Toast.LENGTH_SHORT).show();
-                String getImageUrl;
-
-                //Check if device SDK is greater than 22 then we get the actual image path via below method
-                if (Build.VERSION.SDK_INT > 22)
-                    getImageUrl = ImagePath_MarshMallow.getPath(MainActivity.this, fileUri);
-                else
-                    //else we will get path directly
-                    getImageUrl = fileUri.getPath();
-
-                Log.v(TAG, " image path" + getImageUrl);
-
-                Log.v(TAG,"image path1"+mPhotoPath);
+            bottomSheetDialog.dismiss();
 
 
 
+            if (resultCode == RESULT_OK) {
+
+
+                //int maxWidth = 100;
+                //int maxHeight = 100;
+
+
+                if (requestCode == CAPTURE_IMAGE) {
+                    // Toast.makeText(this, "capture", Toast.LENGTH_SHORT).show();
+                    String getImageUrl;
+
+                    //Check if device SDK is greater than 22 then we get the actual image path via below method
+                    if (Build.VERSION.SDK_INT > 22)
+                        getImageUrl = ImagePath_MarshMallow.getPath(MainActivity.this, fileUri);
+                    else
+                        //else we will get path directly
+                        getImageUrl = fileUri.getPath();
+
+                    Log.v(TAG, " image path" + getImageUrl);
+
+                    Log.v(TAG, "image path1" + mPhotoPath);
+
+                    File imageFile = BitmapUtils.getImageFile();
+                    sourceUri = Uri.fromFile(new File(mPhotoPath));
+                    destUri = Uri.fromFile(imageFile);
+
+
+                    UCrop.of(sourceUri, destUri)
+                            .withAspectRatio(1, 1)
+                            //.withMaxResultSize(maxWidth, maxHeight)
+                            .start(this);
+
+
+                    //editImage(mPhotoPath);
+
+
+                } else if (requestCode == PICK_IMAGE) {
+
+                    String getImageUrl = ImagePath_MarshMallow.getPath(MainActivity.this, data.getData());
+
+                    // Toast.makeText(this, "Gallery", Toast.LENGTH_SHORT).show();
+                   // Uri uri = data.getData();
+                    //editImage(getImageUrl);
+                    File imageFile = BitmapUtils.getImageFile();
+                    sourceUri = Uri.fromFile(new File(getImageUrl));
+                    destUri = Uri.fromFile(imageFile);
+
+                    UCrop.of(sourceUri, destUri)
+                            .withAspectRatio(1, 1)
+                            //.withMaxResultSize(maxWidth, maxHeight)
+                            .start(this);
 
 
 
-               /* UCrop.of(fileUri, fileUri)
-                        .withAspectRatio(16, 9)
-                        .withMaxResultSize(maxWidth, maxHeight)
-                        .start(this);*/
+                } else if (requestCode == UCrop.REQUEST_CROP) {
+                    //final Uri resultUri = UCrop.getOutput(data);
+                    String imagePath = ImagePath_MarshMallow.getPath(MainActivity.this, destUri);
+                    editImage(imagePath);
+
+                } else if (resultCode == UCrop.RESULT_ERROR) {
+                    final Throwable cropError = UCrop.getError(data);
+                    Log.v(TAG," "+cropError.getMessage());
+                }
 
 
-                editImage(mPhotoPath);
-               // editImage(mPhotoPath);
+            }
 
-
-            } else if (requestCode == PICK_IMAGE) {
-
-                String getImageUrl = ImagePath_MarshMallow.getPath(MainActivity.this, data.getData());
-
-                // Toast.makeText(this, "Gallery", Toast.LENGTH_SHORT).show();
-                Uri uri = data.getData();
-                editImage(getImageUrl);
-
-               /* UCrop.of(uri, fileUri)
-                        .withAspectRatio(16, 9)
-                        .withMaxResultSize(maxWidth, maxHeight)
-                        .start(this);*/
-
-
-
-            }/*else if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
-                final Uri resultUri = UCrop.getOutput(data);
-                String imagePath=ImagePath_MarshMallow.getPath(MainActivity.this,resultUri);
-                editImage(imagePath);
-
-            } else if (resultCode == UCrop.RESULT_ERROR) {
-                final Throwable cropError = UCrop.getError(data);
-            }*/
-
-
-
-
+        } catch (Exception e) {
+            Log.e(TAG, " " + e.getMessage());
         }
     }
 
@@ -220,6 +232,7 @@ public class MainActivity extends AppCompatActivity {
                             showSettingsDialog();
                         }
                     }
+
                     @Override
                     public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
                         token.continuePermissionRequest();
@@ -275,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-            File imageFile= BitmapUtils.getImageFile();
+            File imageFile = BitmapUtils.getImageFile();
 
             fileUri = FileProvider.getUriForFile(MainActivity.this,
                     BuildConfig.APPLICATION_ID + ".provider",
@@ -285,8 +298,8 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
             startActivityForResult(intent, CAPTURE_IMAGE);
 
-            Log.v(TAG,"image path3"+imageFile.getPath());
-            Log.v(TAG,"image path4"+imageFile.getCanonicalPath());
+            Log.v(TAG, "image path3" + imageFile.getPath());
+            Log.v(TAG, "image path4" + imageFile.getCanonicalPath());
 
         } catch (Exception e) {
             // generic exception handling

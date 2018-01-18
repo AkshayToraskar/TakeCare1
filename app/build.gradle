@@ -57,7 +57,7 @@ dependencies {
 
     compile 'com.github.shchurov:horizontalwheelview:0.9.5'
 
-    //compile 'com.github.yalantis:ucrop:2.2.1'
+    compile 'com.github.yalantis:ucrop:2.2.1'
 
 
     testImplementation 'junit:junit:4.12'
